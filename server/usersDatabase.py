@@ -1,7 +1,7 @@
 # Import necessary libraries and modules
 from pymongo import MongoClient
 
-import projectsDB
+import projectsDatabase
 
 '''
 Structure of User entry:
@@ -16,6 +16,7 @@ User = {
 # Function to add a new user
 def addUser(client, username, userId, password):
     # Add a new user to the database
+    
     pass
 
 # Helper function to query a user by username and userId
