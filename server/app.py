@@ -4,13 +4,14 @@ from flask import Flask, request, jsonify
 from pymongo import MongoClient
 
 # Import custom modules for database interactions
-import usersDB
-import projectsDB
-import hardwareDB
+import usersDatabase
+import projectsDatabase
+import hardwareDatabase
 import socket
+import threading
 
 # Define the MongoDB connection string
-MONGODB_SERVER = "your_mongodb_connection_string_here"
+MONGODB_SERVER = "mongodb+srv://masterUser:iXshJM0Tn5C9aAYt@userinfo.qp9mr.mongodb.net/?retryWrites=true&w=majority&appName=UserInfo"
 
 # Initialize a new Flask web application
 app = Flask(__name__)
@@ -216,4 +217,3 @@ if __name__ == '__main__':
 
     serv.close()
     app.run()
-
