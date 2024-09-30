@@ -1,6 +1,7 @@
 # Import necessary libraries and modules
 from pymongo import MongoClient
-
+from dotenv import load_dotenv
+import app
 import projectsDatabase
 
 '''
@@ -12,11 +13,21 @@ User = {
     'projects': [project1_ID, project2_ID, ...]
 }
 '''
-
+client = MongoClient(app.MONGODB_SERVER)
+db = client["info"]
+doc = db["Users"]
 # Function to add a new user
 def addUser(client, username, userId, password):
     # Add a new user to the database
-    
+    User = {
+    'username': "username",
+    'userId': "userId",
+    'password': "password",
+    'projects': ["project1_ID, project2_ID, ..."]
+}
+
+
+    doc.insert_one(User)
     pass
 
 # Helper function to query a user by username and userId

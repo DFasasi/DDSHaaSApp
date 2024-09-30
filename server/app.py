@@ -199,7 +199,6 @@ if __name__ == '__main__':
     # 1 - Server sets up a listening socket
     HOST = "127.0.0.1"
     port =8080
-    
     try:
         serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         serv.bind((HOST, port))
