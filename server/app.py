@@ -4,13 +4,14 @@ from flask import Flask, request, jsonify
 from pymongo import MongoClient
 
 # Import custom modules for database interactions
-import usersDB
-import projectsDB
-import hardwareDB
+import usersDatabase
+import projectsDatabase
+import hardwareDatabase
 import socket
+import threading
 
 # Define the MongoDB connection string
-MONGODB_SERVER = "your_mongodb_connection_string_here"
+MONGODB_SERVER = "mongodb+srv://masterUser:iXshJM0Tn5C9aAYt@userinfo.qp9mr.mongodb.net/?retryWrites=true&w=majority&appName=UserInfo"
 
 # Initialize a new Flask web application
 app = Flask(__name__)
@@ -196,24 +197,26 @@ def check_inventory():
 # Main entry point for the application
 if __name__ == '__main__':
     # 1 - Server sets up a listening socket
-    HOST = socket.gethostname()
-    PORT = socket
+    HOST = "127.0.0.1"
+    port =8080
+    
+    try:
+        serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        serv.bind((HOST, port))
+        serv.listen(1)  # Start listening for connections
 
-    for port in range(65535):
-        try: 
-            serv= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            serv.bind((HOST, port))
+        print(f"Listening on port {port}")
+        conn, addr = serv.accept()
+        with conn:
+            print(f"Connected by {addr}")
+            while True:
+                data = conn.recv(1024)
+                if not data:
+                    break
+                print(f"Received data: {data}")
+    except socket.error as e:
+        print(f'[ERROR] Port {port} error: {e}')
+    finally:
+        serv.close()
 
-            conn, addr = serv.accept()
-            with conn:
-                print(f"Connected by {addr}")
-                while True:
-                    data = conn.recv(1024)
-                    if not data:
-                        break
-        except:
-            print('[OPEN] Port open :', port)
-
-    serv.close()
-    app.run()
-
+    # app.run()
