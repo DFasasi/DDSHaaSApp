@@ -13,7 +13,6 @@ HardwareSet = {
 # Function to create a new hardware set
 def createHardwareSet(client, hwSetName, initCapacity):
     # Create a new hardware set in the database
-    hello
     pass
 
 # Function to query a hardware set by its name
