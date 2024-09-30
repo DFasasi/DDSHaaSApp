@@ -7,6 +7,7 @@ from pymongo import MongoClient
 import usersDB
 import projectsDB
 import hardwareDB
+import socket
 
 # Define the MongoDB connection string
 MONGODB_SERVER = "your_mongodb_connection_string_here"
@@ -194,5 +195,25 @@ def check_inventory():
 
 # Main entry point for the application
 if __name__ == '__main__':
+    # 1 - Server sets up a listening socket
+    HOST = socket.gethostname()
+    PORT = socket
+
+    for port in range(65535):
+        try: 
+            serv= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            serv.bind((HOST, port))
+
+            conn, addr = serv.accept()
+            with conn:
+                print(f"Connected by {addr}")
+                while True:
+                    data = conn.recv(1024)
+                    if not data:
+                        break
+        except:
+            print('[OPEN] Port open :', port)
+
+    serv.close()
     app.run()
 
