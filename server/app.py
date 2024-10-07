@@ -2,6 +2,7 @@
 from bson.objectid import ObjectId
 from flask import Flask, request, jsonify
 from pymongo import MongoClient
+from cryptography.fernet import Fernet
 
 # Import custom modules for database interactions
 import usersDatabase
@@ -9,6 +10,9 @@ import projectsDatabase
 import hardwareDatabase
 import socket
 import threading
+import os
+key = "GveCI0oMOaBIEzjiSa3UekwMIb_T-7d--aeyEqtPycY=".encode()
+
 
 # Define the MongoDB connection string
 MONGODB_SERVER = "mongodb+srv://masterUser:iXshJM0Tn5C9aAYt@userinfo.qp9mr.mongodb.net/?retryWrites=true&w=majority&appName=UserInfo"
