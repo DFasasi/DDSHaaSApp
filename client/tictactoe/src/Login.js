@@ -1,36 +1,6 @@
 import React from 'react';
 import { useState } from 'react';
 
-const net = require('net');
-
-const client = new net.Socket();
-const port = 8080; // Replace with the port your server is listening on
-const host = '127.0.0.1'; // Replace with the server's IP address
-let up = LoginForm()
-
-console.log("Client starting up...");
-client.connect(port, host, () => {
-    console.log('Connected to server');
-    const arr = up.split(" ")
-    user = arr[0]
-    pass = arr[1]
-    client.write(user + pass);
-});
-
-client.on('data', (data) => {
-    console.log('Received: ' + data);
-    client.destroy(); // Close the connection after receiving data
-});
-
-client.on('close', () => {
-    console.log('Connection closed');
-});
-
-client.on('error', (err) => {
-    console.error('Error: ' + err.message);
-});
-
-
 const LoginForm = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -41,7 +11,7 @@ const LoginForm = () => {
   
       // Log the input values (for now)
       return username + " " + password
-
+  
     };
       return (
         <div>
@@ -72,5 +42,5 @@ const LoginForm = () => {
         </div>
       );
     };
-    
-    export default LoginForm;
+
+export default LoginForm;
