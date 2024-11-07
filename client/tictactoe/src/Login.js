@@ -17,8 +17,11 @@ const Login = () => {
         headers: { 'Content-Type': 'application/json' },
       });
       console.log('Login successful:', response.data);
+      alert('User logged in successfully!');
     } catch (error) {
       console.error('Error logging in:', error.response ? error.response.data : error.message);
+      alert('User login failed!');
+
     }
   };
 
