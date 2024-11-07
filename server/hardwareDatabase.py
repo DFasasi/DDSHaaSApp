@@ -1,9 +1,9 @@
 # Import necessary libraries and modules
 from pymongo import MongoClient
-import app
 
 # Connect to MongoDB
-client = MongoClient(app.MONGODB_SERVER)
+MONGODB_SERVER = "mongodb+srv://masterUser:iXshJM0Tn5C9aAYt@userinfo.qp9mr.mongodb.net/?retryWrites=true&w=majority&appName=UserInfo"
+client = MongoClient(MONGODB_SERVER)
 db = client["hardwareDB"]  # Define the database
 hw_collection = db["hardwareSets"]  # Define the collection
 

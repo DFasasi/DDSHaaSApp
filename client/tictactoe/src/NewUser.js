@@ -1,52 +1,87 @@
-import React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
+import axios from 'axios';
 
-const NewUserbutton = () => {
-    const [username, setUsername] = useState('')
-    const [password, setPassword] = useState('')
+const NewUserForm = () => {
+  const [formData, setFormData] = useState({
+    username: '',
+    password: '',
+    confirmPassword: '',
+  });
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
 
-        return username + " " + password
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (formData.password !== formData.confirmPassword) {
+      alert('Passwords do not match!');
+      return;
+    }
+    // Handle form submission (e.g., send data to server)
+    alert('User created successfully!');
+    
+    const addUser = async () => {
+      try {
+        const response = await axios.post('http://localhost:5000/add_user', {
+          username: formData.username,
+          userId: formData.userId,
+          password: formData.password
+        }, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+    
+        console.log(response.data);
+      } catch (error) {
+        console.error('Error:', error.response ? error.response.data : error.message);
+      }
     };
-    return (
-        <div>
-          <h1>Create New UserPage</h1>
-          <form onSubmit={handleSubmit}>
-            <label htmlFor="uname"><b>Username</b></label>
-            <input
-              type="text"
-              placeholder="Enter Username"
-              name="uname"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
-            <br />
-            <label htmlFor="psw"><b>Password</b></label>
-            <input
-              type="password"
-              placeholder="Enter Password"
-              name="psw"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <br />
-            <label htmlFor="confirmpass"><b>Confirm password</b></label>
-            <input
-              type="password"
-              placeholder="Confirm password"
-              name="psw"
-              value={password}
-              //ADD LOGIC TO CHECK FOR EQUALITY
-              required
-            />
-            <br />
-            <button type="submit">Create your account</button>
-          </form>
-        </div>
-    );
+    
+    // Call the function to make the request
+    addUser()
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <div>
+        <label>Username:</label>
+        <input
+          type="text"
+          name="username"
+          value={formData.username}
+          onChange={handleChange}
+          required
+        />
+      </div>
+      <div>
+        <label>Password:</label>
+        <input
+          type="password"
+          name="password"
+          value={formData.password}
+          onChange={handleChange}
+          required
+        />
+      </div>
+      <div>
+        <label>Confirm Password:</label>
+        <input
+          type="password"
+          name="confirmPassword"
+          value={formData.confirmPassword}
+          onChange={handleChange}
+          required
+        />
+      </div>
+      <button type="submit">Create User</button>
+    </form>
+  );
 };
-export default NewUserbutton;
+
+export default NewUserForm;

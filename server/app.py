@@ -3,14 +3,11 @@ from bson.objectid import ObjectId
 from flask import Flask, request, jsonify
 from pymongo import MongoClient
 from cryptography.fernet import Fernet
-
+from flask_cors import CORS
 # Import custom modules for database interactions
 import usersDatabase
 import projectsDatabase
 import hardwareDatabase
-import socket
-import threading
-import os
 key = "GveCI0oMOaBIEzjiSa3UekwMIb_T-7d--aeyEqtPycY=".encode()
 
 
@@ -19,7 +16,7 @@ MONGODB_SERVER = "mongodb+srv://masterUser:iXshJM0Tn5C9aAYt@userinfo.qp9mr.mongo
 
 # Initialize a new Flask web application
 app = Flask(__name__)
-
+CORS(app)  # Enable CORS for all routes
 # Route for user login
 @app.route('/login', methods=['POST'])
 def login():
@@ -67,11 +64,18 @@ def add_user():
     username = data.get('username')
     userId = data.get('userId')
     password = data.get('password')
-
     client = MongoClient(MONGODB_SERVER)
+    if not username or not userId or not password:
+            return jsonify({"status": "error", "message": "All fields are required!"}), 400
     try:
-        usersDatabase.addUser(client, username, userId, password)
-        return jsonify({"status": "success"}), 200
+        result = usersDatabase.addUser(client, username, userId, password)
+        if result:
+            return jsonify({"status": "success"}), 200
+        else:
+            return jsonify({"status": "error", "message": "User could not be created."}), 500
+    except Exception as e:
+        # print(traceback.format_exc())
+        return jsonify({"status": "error", "message": "An error occurred."}), 500
     finally:
         client.close()
 
@@ -195,26 +199,27 @@ def check_inventory():
 
 # Main entry point for the application
 if __name__ == '__main__':
-    # 1 - Server sets up a listening socket
-    HOST = "127.0.0.1"
-    port =8080
-    try:
-        serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        serv.bind((HOST, port))
-        serv.listen(1)  # Start listening for connections
+    # # 1 - Server sets up a listening socket
+    # HOST = "127.0.0.1"
+    # port =8080
+    # try:
+    #     serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    #     serv.bind((HOST, port))
+    #     serv.listen(1)  # Start listening for connections
 
-        print(f"Listening on port {port}")
-        conn, addr = serv.accept()
-        with conn:
-            print(f"Connected by {addr}")
-            while True:
-                data = conn.recv(1024)
-                if not data:
-                    break
-                print(f"Received data: {data}")
-    except socket.error as e:
-        print(f'[ERROR] Port {port} error: {e}')
-    finally:
-        serv.close()
+    #     print(f"Listening on port {port}")
+    #     conn, addr = serv.accept()
+    #     with conn:
+    #         print(f"Connected by {addr}")
+    #         while True:
+    #             data = conn.recv(1024)
+    #             if not data:
+    #                 break
+    #             print(f"Received data: {data}")
+    # except socket.error as e:
+    #     print(f'[ERROR] Port {port} error: {e}')
+    # finally:
+    #     serv.close()
+    # usersDatabase.addUser("client", "test", "userId", "pwd")
 
-    # app.run()
+    app.run()

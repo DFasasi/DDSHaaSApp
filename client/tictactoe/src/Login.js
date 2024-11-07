@@ -1,46 +1,52 @@
-import React from 'react';
-import { useState } from 'react';
+// src/Login.js
+import React, { useState } from 'react';
+import axios from 'axios';
 
-const LoginForm = () => {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-  
-    // Handles the form submission
-    const handleSubmit = (event) => {
-      event.preventDefault(); // Prevents page refresh
-  
-      // Log the input values (for now)
-      return username + " " + password
-  
-    };
-      return (
-        <div>
-          <h1>Log-in Page</h1>
-          <form onSubmit={handleSubmit}>
-            <label htmlFor="uname"><b>Username</b></label>
-            <input
-              type="text"
-              placeholder="Enter Username"
-              name="uname"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
-            <br />
-            <label htmlFor="psw"><b>Password</b></label>
-            <input
-              type="password"
-              placeholder="Enter Password"
-              name="psw"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <br />
-            <button type="submit">Login</button>
-          </form>
-        </div>
-      );
-    };
+const Login = () => {
+  const [formData, setFormData] = useState({ username: '', password: '' });
 
-export default LoginForm;
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post('http://localhost:5000/login', formData, {
+        headers: { 'Content-Type': 'application/json' },
+      });
+      console.log('Login successful:', response.data);
+    } catch (error) {
+      console.error('Error logging in:', error.response ? error.response.data : error.message);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <div>
+        <label>Username:</label>
+        <input
+          type="text"
+          name="username"
+          value={formData.username}
+          onChange={handleChange}
+          required
+        />
+      </div>
+      <div>
+        <label>Password:</label>
+        <input
+          type="password"
+          name="password"
+          value={formData.password}
+          onChange={handleChange}
+          required
+        />
+      </div>
+      <button type="submit">Login</button>
+    </form>
+  );
+};
+
+export default Login;
