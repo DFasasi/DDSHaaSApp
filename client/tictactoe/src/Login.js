@@ -13,15 +13,18 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/login', formData, {
+      const response = await axios.post('http://localhost:5000/login', {
+        username: formData.username,
+        userId: "1",
+        password: formData.password
+      },{
         headers: { 'Content-Type': 'application/json' },
       });
-      console.log('Login successful:', response.data);
-      alert('User logged in successfully!');
+      console.log('Login successful:', response.data.message);
+      alert(response.data.message);
     } catch (error) {
       console.error('Error logging in:', error.response ? error.response.data : error.message);
       alert('User login failed!');
-
     }
   };
 

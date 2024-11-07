@@ -23,13 +23,12 @@ const NewUserForm = () => {
       return;
     }
     // Handle form submission (e.g., send data to server)
-    alert('User created successfully!');
     
     const addUser = async () => {
       try {
         const response = await axios.post('http://localhost:5000/add_user', {
           username: formData.username,
-          userId: formData.userId,
+          userId: "1",
           password: formData.password
         }, {
           headers: {
@@ -38,8 +37,12 @@ const NewUserForm = () => {
         });
     
         console.log(response.data);
+        alert('User created successfully!');
+        
       } catch (error) {
         console.error('Error:', error.response ? error.response.data : error.message);
+        alert(`User login failed! Reason: ${error.response ? error.response.data.message : 'Unknown error'}`);
+
       }
     };
     
