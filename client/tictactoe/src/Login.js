@@ -1,9 +1,11 @@
 // src/Login.js
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Ensure this is 'react-router-dom'
 import axios from 'axios';
 
 const Login = () => {
   const [formData, setFormData] = useState({ username: '', password: '' });
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,8 +22,13 @@ const Login = () => {
       },{
         headers: { 'Content-Type': 'application/json' },
       });
+
       console.log('Login successful:', response.data.message);
       alert(response.data.message);
+
+      // Navigate to the Projects page after successful login
+      navigate('/projects');
+
     } catch (error) {
       console.error('Error logging in:', error.response ? error.response.data : error.message);
       alert('User login failed!');
@@ -31,6 +38,7 @@ const Login = () => {
   return (
     <form onSubmit={handleSubmit}>
       <div>
+        <h1>Login</h1>
         <label>Username:</label>
         <input
           type="text"
