@@ -26,34 +26,37 @@ def queryProject(client, projectId):
     if project:
         return project
     else:
-        return f"No project found with ID '{projectId}'"
+        return False
     pass
 
 # Function to create a new project
 def createProject(client, projectName, projectId, description):
     # Create a new project in the database
-    Project = {
-        'projectName': projectName,
-        'projectId': projectId,
-        'description': description,
-        'hwSets': {},
-        'users': []
-    }
-    projects_collection.insert_one(Project)
-    return f"Project '{projectName}' created with ID {projectId}"
-    pass
+    if(not queryProject(client,projectId)):
+        Project = {
+            'projectName': projectName,
+            'projectId': projectId,
+            'description': description,
+            'hwSets': {},
+            'users': []
+        }
+        projects_collection.insert_one(Project)
+        return f"Project '{projectName}' created with ID {projectId}"
+    return False
 
 # Function to add a user to a project
 def addUser(client, projectId, userId):
     # Add a user to the specified project
-    result = projects_collection.update_one(
-        {'projectId': projectId},
-        {'$addToSet': {'users': userId}}
-    )
-    if result.modified_count > 0:
+    proj=queryProject(client,projectId)
+    flag = any(user==userId for user in proj['users'].count(userId) )
+    if(not flag):
+        result = projects_collection.update_one(
+            {'projectId': projectId},
+            {'$addToSet': {'users': userId}}
+        )
         return f"User {userId} added to project {projectId}"
     else:
-        return f"No project found with ID '{projectId}' or user already added"
+        return False
     pass
 
 # Function to update hardware usage in a project

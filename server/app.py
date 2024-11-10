@@ -66,7 +66,10 @@ def join_project():
     client = MongoClient(MONGODB_SERVER)
     try:
         join_status = projectsDatabase.addUser(client, projectId, userId)
-        return jsonify({"status": "success" if join_status else "error"}), 200 if join_status else 500
+        if(join_status):
+            return jsonify({"status": "success"}), 200
+        return jsonify({"status": "error", "message": "User already exists in project or Project Doesn't Exist."}), 500
+        
     finally:
         client.close()
 
@@ -120,10 +123,11 @@ def create_project():
 
     client = MongoClient(MONGODB_SERVER)
     try:
-        projectsDatabase.createProject(client,projectName, projectId, description)
-        projectsDatabase.addUser(client, projectId, userId)
-        usersDatabase.joinProject(client, userId,projectId)
-        return jsonify({"status": "success"}), 200
+        if(projectsDatabase.createProject(client,projectName, projectId, description)):
+            projectsDatabase.addUser(client, projectId, userId)
+            usersDatabase.joinProject(client, userId,projectId)
+            return jsonify({"status": "success"}), 200
+        return jsonify({"status": "error", "message": "Project already exists."}), 500
     finally:
         client.close()
 
@@ -223,6 +227,6 @@ if __name__ == '__main__':
     # print(usersDatabase.login("client", "test", "test"))
     # print(usersDatabase.getUserProjectsList(MongoClient(MONGODB_SERVER),"test","1"))
     # print(usersDatabase.joinProject(MongoClient(MONGODB_SERVER),"test","1",1))
-    print(sys.path)
+    # print(sys.path)
     # projectsDatabase.createProject("client","test Proj", "1", "description")
     app.run()
