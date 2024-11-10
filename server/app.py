@@ -225,4 +225,4 @@ if __name__ == '__main__':
     # print(usersDatabase.joinProject(MongoClient(MONGODB_SERVER),"test","1",1))
     print(sys.path)
     # projectsDatabase.createProject("client","test Proj", "1", "description")
-    # app.run()
+    app.run()
