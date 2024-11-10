@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const NewUserForm = () => {
   const [formData, setFormData] = useState({
@@ -7,6 +8,7 @@ const NewUserForm = () => {
     password: '',
     confirmPassword: '',
   });
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -27,8 +29,8 @@ const NewUserForm = () => {
     const addUser = async () => {
       try {
         const response = await axios.post('http://localhost:5000/add_user', {
-          username: formData.username,
-          userId: "1",
+          userId: formData.username,
+          // userId: "1",
           password: formData.password
         }, {
           headers: {
@@ -38,6 +40,7 @@ const NewUserForm = () => {
     
         console.log(response.data);
         alert('User created successfully!');
+        navigate('/projects', { state: { userId: formData.username } });
         
       } catch (error) {
         console.error('Error:', error.response ? error.response.data : error.message);

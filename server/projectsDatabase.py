@@ -5,8 +5,8 @@ import hardwareDatabase
 MONGODB_SERVER = "mongodb+srv://masterUser:iXshJM0Tn5C9aAYt@userinfo.qp9mr.mongodb.net/?retryWrites=true&w=majority&appName=UserInfo"
 # Connect to MongoDB
 client = MongoClient(MONGODB_SERVER)
-db = client["projectsDB"]
-projects_collection = db["projects"]
+db = client["info"]
+projects_collection = db["Projects"]
 
 '''
 Structure of Project entry:

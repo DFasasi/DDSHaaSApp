@@ -1,7 +1,8 @@
 # Import necessary libraries and modules
 from pymongo import MongoClient
 from dotenv import load_dotenv
-from werkzeug.security import generate_password_hash, check_password_hash
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad, unpad
 import bson
 import base64
 import pymongo
@@ -10,7 +11,6 @@ import projectsDatabase
 '''
 Structure of User entry:
 User = {
-    'username': username,
     'userId': userId,
     'password': password,
     'projects': [project1_ID, project2_ID, ...]
@@ -20,72 +20,55 @@ MONGODB_SERVER = "mongodb+srv://masterUser:iXshJM0Tn5C9aAYt@userinfo.qp9mr.mongo
 client = MongoClient(MONGODB_SERVER)
 db = client["info"]
 doc = db["Users"]
+key = b'1234567890123456'  # AES key must be either 16, 24, or 32 bytes long
+cipher = AES.new(key, AES.MODE_ECB)
+
 # Function to add a new user
-def addUser(client, username, userId, password):
+def addUser(client, userId, password):
     # Add a new user to the database
-    if __queryUser(client,username,userId):
+    if __queryUser(client,userId):
         return False
     User = {
-    'username': username,
-    'userId': generate_password_hash(userId),
-    'password':generate_password_hash(password),
+    'userId': cipher.encrypt(pad(userId.encode(), AES.block_size)),
+    'password':cipher.encrypt(pad(password.encode(), AES.block_size)),
     'projects': []
 }
     doc.insert_one(User)
-    print(username +"\n"+password+"\n")
-    client.close()
+    # print(userId +"\n"+password+"\n") #for debug
     return True
-    pass
 
-# Helper function to query a user by username and userId
-def __queryUser(client, username, userId):
+# Helper function to query a user by userId
+def __queryUser(client,  userId):
     # Query and return a user from the database
-    User = {
-    'username': username,
-}
+    User = {'userId': cipher.encrypt(pad(userId.encode(), AES.block_size))}
     u=doc.find_one(User)
     if u:
-        check_password_hash(u['userId'],userId)
         return u
-    client.close()
     return False
 
 # Function to log in a user
-def login(client, username, userId, password):
+def login(client, userId, password):
     # Authenticate a user and return login status
-# Encrypt and encode
-    query = {
-        'username': username,
-    }
-
-    # Find a matching document
-    user = doc.find_one(query)
-
-    # Close the client connection
-    client.close()
-
-    if user and check_password_hash(user['userId'], userId) and check_password_hash(user['password'], password):
-        return True
-    print(username +"\n"+password)
-    return False
+    user = __queryUser(client,userId)
+    return user and user['password']==cipher.encrypt(pad(password.encode(), AES.block_size))
 
 # Function to add a user to a project
-def joinProject(client, username, userId, projectId):
+def joinProject(client, userId, projectId):
     # Add a user to a specified project
-    user = __queryUser(client, username, userId)
+    user = __queryUser(client, userId)
     if user:
         arr = user.get("projects", [])
         arr.append(projectId)
         arr.sort()
         # Use $set to update the projects field correctly
-        doc.update_one({ 'username': username }, { '$set': { 'projects': arr } })
+        doc.update_one({ 'userId': cipher.encrypt(pad(userId.encode(), AES.block_size)) }, { '$set': { 'projects': arr } })
         return True
     return False
 
 # Function to get the list of projects for a user
-def getUserProjectsList(client, username,userId):
+def getUserProjectsList(client, userId):
     # Get and return the list of projects a user is part of
-    user = __queryUser(client, username, userId)
+    user = __queryUser(client, userId)
     if user:
         arr = user.get("projects", [])   
         return arr

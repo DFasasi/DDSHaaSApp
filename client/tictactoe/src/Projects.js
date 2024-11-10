@@ -1,114 +1,71 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useLocation } from 'react-router-dom';
 
-const Projects =(props) =>{
-        const [formData, setFormData] = useState({
-          name: '',
-          description: '',
-          projectId: '',
-        });
-      
-        const handleChange = (e) => {
-          const { name, value } = e.target;
-          setFormData((prevData) => ({
+const Projects = (props) => {
+    const location = useLocation();
+    const { userId } = location.state; 
+    const [formData, setFormData] = useState({
+        name: '',
+        description: '',
+        projectId: '',
+    });
+    const [showHide, setShowHide] = useState(true);
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prevData) => ({
             ...prevData,
             [name]: value,
-          }));
-        };
+        }));
+    };
 
-        const handleSubmit = (e) => {
-            e.preventDefault();
-            // Handle form submission (e.g., send data to server)
-            
-            const addProj = async () => {
-                if(showHide){
-                    try {
-                        const response = await axios.post('http://localhost:5000/create_project', {
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        const addProj = async () => {
+            if (showHide) {
+                try {
+                    const response = await axios.post('http://localhost:5000/create_project', {
+                        userId: userId,
                         projectName: formData.name,
-                        projectId: formData.projectId, //work on API Later
+                        projectId: formData.projectId,
                         description: formData.description
-                        }, {
+                    }, {
                         headers: {
                             'Content-Type': 'application/json'
                         }
-                        });
-                        console.log(response.data);
-                        alert('Project created successfully!');  
-                    } 
-                    catch (error) {
-                        console.error('Error:', error.response ? error.response.data : error.message);
-                        alert(`Project creation failed! Reason: ${error.response ? error.response.data.message : 'Unknown error'}`);
-                    }
+                    });
+                    console.log(response.data);
+                    alert('Project created successfully!');
+                } catch (error) {
+                    console.error('Error:', error.response ? error.response.data : error.message);
+                    alert(`Project creation failed! Reason: ${error.response ? error.response.data.message : 'Unknown error'}`);
                 }
-              else{
+            } else {
                 try {
                     const response = await axios.post('http://localhost:5000/join_project', {
-                      userId: props.userId, //Work On API LATER
-                      projectId: formData.projectId
+                        userId: props.userId,
+                        projectId: formData.projectId
                     }, {
-                      headers: {
-                        'Content-Type': 'application/json'
-                      }
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
                     });
-                
                     console.log(response.data);
                     alert('User joined project successfully!');
-                    
-                  } catch (error) {
+                } catch (error) {
                     console.error('Error:', error.response ? error.response.data : error.message);
                     alert(`User couldn't join project! Reason: ${error.response ? error.response.data.message : 'Unknown error'}`);
-            
-                  }
-              }
-            };
-            
-            // Call the function to make the request
-            addProj()
+                }
+            }
         };
+        addProj();
+    };
 
-//     return(
-// <form onSubmit={handleSubmit}>
-//       <div>
-//         <label>Name:</label>
-//         <input
-//           type="text"
-//           name="Name"
-//           value={formData.Name}
-//           onChange={handleChange}
-//           required
-//         />
-//       </div>
-//       <div>
-//         <label>Description:</label>
-//         <input
-//           type="text"
-//           name="Description"
-//           value={formData.Description}
-//           onChange={handleChange}
-//           required
-//         />
-//       </div>
-//       <div>
-//         <label>projectId:</label>
-//         <input
-//           type="text"
-//           name="projectId"
-//           value={formData.projectId}
-//           onChange={handleChange}
-//           required
-//         />
-//       </div>
-//       </form>
-//     )
-// };
-
-// export default Projects;
-
-// import React, { useState } from 'react';
-    const [ showHide, setShowHide] = useState(true);
     const toggleHandler = () => {
         setShowHide(!showHide);
-        }
+    };
+
     return (
         <div>
             {showHide && 
@@ -119,51 +76,51 @@ const Projects =(props) =>{
                     <div>
                         <label>Name:</label>
                         <input
-                        type="text"
-                        name="Name"
-                        value={formData.Name}
-                        onChange={handleChange}
-                        required
+                            type="text"
+                            name="name"
+                            value={formData.name}
+                            onChange={handleChange}
+                            required
                         />
                     </div>
                     <div>
                         <label>Description:</label>
                         <input
-                        type="text"
-                        name="Description"
-                        value={formData.Description}
-                        onChange={handleChange}
-                        required
+                            type="text"
+                            name="description"
+                            value={formData.description}
+                            onChange={handleChange}
+                            required
                         />
                     </div>
                     <div>
                         <label>projectId:</label>
                         <input
-                        type="text"
-                        name="projectId"
-                        value={formData.projectId}
-                        onChange={handleChange}
-                        required
+                            type="text"
+                            name="projectId"
+                            value={formData.projectId}
+                            onChange={handleChange}
+                            required
                         />
                     </div>
                     <div>
                         <button type="submit">Submit</button>
                     </div>
-                    </form>                 
+                </form>                 
             }
             {!showHide &&
                 <form onSubmit={handleSubmit}>
                     <div>
-                        <h1>Join Pre-Exisiting Project</h1>
+                        <h1>Join Pre-Existing Project</h1>
                     </div>
                     <div>
                         <label>projectId:</label>
                         <input
-                        type="text"
-                        name="projectId"
-                        value={formData.projectId}
-                        onChange={handleChange}
-                        required
+                            type="text"
+                            name="projectId"
+                            value={formData.projectId}
+                            onChange={handleChange}
+                            required
                         />
                     </div>
                     <div>
@@ -173,7 +130,7 @@ const Projects =(props) =>{
             }
             <button onClick={toggleHandler}>New Project/Join Existing Project</button>
         </div>
-        
-        );
-    };
+    );
+};
+
 export default Projects;

@@ -1,6 +1,6 @@
 // src/Login.js
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Ensure this is 'react-router-dom'
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const Login = () => {
@@ -16,8 +16,8 @@ const Login = () => {
     e.preventDefault();
     try {
       const response = await axios.post('http://localhost:5000/login', {
-        username: formData.username,
-        userId: "1",
+        userId: formData.username,
+        // userId: "1",
         password: formData.password
       },{
         headers: { 'Content-Type': 'application/json' },
@@ -27,7 +27,8 @@ const Login = () => {
       alert(response.data.message);
 
       // Navigate to the Projects page after successful login
-      navigate('/projects');
+      navigate('/projects', { state: { userId: formData.username } });
+
 
     } catch (error) {
       console.error('Error logging in:', error.response ? error.response.data : error.message);

@@ -2,16 +2,13 @@
 from bson.objectid import ObjectId
 from flask import Flask, request, jsonify
 from pymongo import MongoClient
-from cryptography.fernet import Fernet
 from flask_cors import CORS
 # Import custom modules for database interactions
 import usersDatabase
 import projectsDatabase
 import hardwareDatabase
 import logging
-key = "GveCI0oMOaBIEzjiSa3UekwMIb_T-7d--aeyEqtPycY=".encode()
-
-
+import sys
 # Define the MongoDB connection string
 MONGODB_SERVER = "mongodb+srv://masterUser:iXshJM0Tn5C9aAYt@userinfo.qp9mr.mongodb.net/?retryWrites=true&w=majority&appName=UserInfo"
 
@@ -29,18 +26,17 @@ def login():
     data = request.json
     logging.debug(f'Received data: {data}')
     
-    username = data.get('username')
     userId = data.get('userId')
     password = data.get('password')
 
-    if not username or not password:
-        logging.debug('Username or password is missing')
-        return jsonify({"status": "error", "message": "Username and password are required!"}), 400
+    if not userId or not password:
+        logging.debug('UserId or password is missing')
+        return jsonify({"status": "error", "message": "UserId and password are required!"}), 400
 
     client = MongoClient(MONGODB_SERVER)
     try:
         # Call the usersDatabase.login function
-        login_status = usersDatabase.login(client, username, userId, password)
+        login_status = usersDatabase.login(client, userId, password)
         logging.debug(f'Status: {login_status}')
         return jsonify({"status": "success" if login_status else "error", "message": "Login successful!" if login_status else "Invalid credentials"}), 200 if login_status else 401
     except Exception as e:
@@ -80,15 +76,14 @@ def add_user():
     logging.basicConfig(level=logging.DEBUG)
     data = request.json
     logging.debug(f'Received data: {data}')
-    username = data.get('username')
     userId = data.get('userId')
     password = data.get('password')
     client = MongoClient(MONGODB_SERVER)
-    if not username or not userId or not password:
+    if not userId or not password:
             logging.debug(f'error bruh')
             return jsonify({"status": "error", "message": "All fields are required!"}), 400
     try:
-        result = usersDatabase.addUser(client, username, userId, password)
+        result = usersDatabase.addUser(client, userId, password)
         if result:
             return jsonify({"status": "success"}), 200
         else:
@@ -116,13 +111,18 @@ def get_user_projects_list():
 @app.route('/create_project', methods=['POST'])
 def create_project():
     data = request.json
+    logging.basicConfig(level=logging.DEBUG)
+    logging.debug(data)
+    userId = data.get('userId')
     projectName = data.get('projectName')
     projectId = data.get('projectId')
     description = data.get('description')
 
     client = MongoClient(MONGODB_SERVER)
     try:
-        projectsDatabase.createProject(client, projectName, projectId, description)
+        projectsDatabase.createProject(client,projectName, projectId, description)
+        projectsDatabase.addUser(client, projectId, userId)
+        usersDatabase.joinProject(client, userId,projectId)
         return jsonify({"status": "success"}), 200
     finally:
         client.close()
@@ -219,9 +219,10 @@ def check_inventory():
 
 # Main entry point for the application
 if __name__ == '__main__':
-    # print(usersDatabase.addUser("client", "test", "1", "test"))
-    # print(usersDatabase.login("client", "test", "1", "test"))
+    # print(usersDatabase.addUser("client", "test", "test1"))
+    # print(usersDatabase.login("client", "test", "test"))
     # print(usersDatabase.getUserProjectsList(MongoClient(MONGODB_SERVER),"test","1"))
     # print(usersDatabase.joinProject(MongoClient(MONGODB_SERVER),"test","1",1))
-
-    app.run()
+    print(sys.path)
+    # projectsDatabase.createProject("client","test Proj", "1", "description")
+    # app.run()
