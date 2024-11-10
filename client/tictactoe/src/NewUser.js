@@ -1,6 +1,8 @@
+// src/NewUser.js
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import './App.css';
 
 const NewUserForm = () => {
   const [formData, setFormData] = useState({
@@ -24,38 +26,29 @@ const NewUserForm = () => {
       alert('Passwords do not match!');
       return;
     }
-    // Handle form submission (e.g., send data to server)
-    
+
     const addUser = async () => {
       try {
         const response = await axios.post('http://localhost:5000/add_user', {
           userId: formData.username,
-          // userId: "1",
           password: formData.password
         }, {
-          headers: {
-            'Content-Type': 'application/json'
-          }
+          headers: { 'Content-Type': 'application/json' }
         });
-    
-        console.log(response.data);
         alert('User created successfully!');
         navigate('/projects', { state: { userId: formData.username } });
         
       } catch (error) {
-        console.error('Error:', error.response ? error.response.data : error.message);
-        alert(`User login failed! Reason: ${error.response ? error.response.data.message : 'Unknown error'}`);
-
+        alert('User creation failed!');
       }
     };
-    
-    // Call the function to make the request
-    addUser()
+    addUser();
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
+    <div className="form-container">
+      <h1>Create New User</h1>
+      <form onSubmit={handleSubmit}>
         <label>Username:</label>
         <input
           type="text"
@@ -64,8 +57,6 @@ const NewUserForm = () => {
           onChange={handleChange}
           required
         />
-      </div>
-      <div>
         <label>Password:</label>
         <input
           type="password"
@@ -74,8 +65,6 @@ const NewUserForm = () => {
           onChange={handleChange}
           required
         />
-      </div>
-      <div>
         <label>Confirm Password:</label>
         <input
           type="password"
@@ -84,9 +73,9 @@ const NewUserForm = () => {
           onChange={handleChange}
           required
         />
-      </div>
-      <button type="submit">Create User</button>
-    </form>
+        <button type="submit">Create User</button>
+      </form>
+    </div>
   );
 };
 

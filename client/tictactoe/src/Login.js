@@ -2,8 +2,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import './App.css';
 
-const Login = () => {
+const Login = ({ onLogin }) => {
   const [formData, setFormData] = useState({ username: '', password: '' });
   const navigate = useNavigate();
 
@@ -17,29 +18,24 @@ const Login = () => {
     try {
       const response = await axios.post('http://localhost:5000/login', {
         userId: formData.username,
-        // userId: "1",
         password: formData.password
-      },{
+      }, {
         headers: { 'Content-Type': 'application/json' },
       });
 
-      console.log('Login successful:', response.data.message);
       alert(response.data.message);
-
-      // Navigate to the Projects page after successful login
-      navigate('/projects', { state: { userId: formData.username } });
-
+      onLogin(); // Set logged in state to true in App
+      navigate('/projects', { state: { userId: formData.username } }); // Navigate to Projects page
 
     } catch (error) {
-      console.error('Error logging in:', error.response ? error.response.data : error.message);
       alert('User login failed!');
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <h1>Login</h1>
+    <div className="form-container">
+      <h1>Login</h1>
+      <form onSubmit={handleSubmit}>
         <label>Username:</label>
         <input
           type="text"
@@ -48,8 +44,6 @@ const Login = () => {
           onChange={handleChange}
           required
         />
-      </div>
-      <div>
         <label>Password:</label>
         <input
           type="password"
@@ -58,9 +52,9 @@ const Login = () => {
           onChange={handleChange}
           required
         />
-      </div>
-      <button type="submit">Login</button>
-    </form>
+        <button type="submit">Login</button>
+      </form>
+    </div>
   );
 };
 
