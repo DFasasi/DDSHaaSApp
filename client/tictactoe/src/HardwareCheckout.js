@@ -1,12 +1,11 @@
-// src/HardwareCheckout.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './HardwareCheckout.css';
 
 const HardwareCheckout = ({ projectId, userId }) => {
   const [hardwareData, setHardwareData] = useState({
-    hwSet1: { capacity: 10, available: 10, request: '' },
-    hwSet2: { capacity: 15, available: 15, request: '' },
+    hwSet1: { capacity: 200, available: 200, request: '' },
+    hwSet2: { capacity: 200, available: 200, request: '' },
   });
 
   useEffect(() => {
