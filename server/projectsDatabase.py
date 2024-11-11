@@ -48,7 +48,7 @@ def createProject(client, projectName, projectId, description):
 def addUser(client, projectId, userId):
     # Add a user to the specified project
     proj=queryProject(client,projectId)
-    flag = any(user==userId for user in proj['users'].count(userId) )
+    flag = any(user==userId for user in proj['users'])
     if(not flag):
         result = projects_collection.update_one(
             {'projectId': projectId},

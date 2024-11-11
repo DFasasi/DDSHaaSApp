@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import './App.css';
 
 const Projects = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { userId } = location.state;
   const [formData, setFormData] = useState({
     name: '',
@@ -31,6 +33,7 @@ const Projects = () => {
         headers: { 'Content-Type': 'application/json' },
       });
       alert(showCreateProject ? 'Project created successfully!' : 'Joined project successfully!');
+      navigate('/hardwarecheckout');
     } catch (error) {
       alert('Project action failed!');
     }
