@@ -27,7 +27,10 @@ function App() {
       <div className="app-container">
         <nav className="nav-links">
           {loggedIn ? (
-            <span onClick={handleLogout} className="logout-link">Log Out</span>
+            //<span onClick={handleLogout} className="logout-link">Log Out</span>
+            <Link to="/" onClick={handleLogout} className="logout-link">
+              Log Out
+            </Link>
           ) : (
             <>
               <Link to="/">Login</Link>

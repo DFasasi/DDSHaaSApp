@@ -33,17 +33,11 @@ def createHardwareSet(client, hwSetName, initCapacity):
 # Function to query a hardware set by its name
 def queryHardwareSet(client, hwSetName):
     # Query and return a hardware set from the database
-    result = hw_collection.find_one({'hwName': hwSetName})
-    
-    if result:
-        return result
-    else:
-        print(f"No hardware set found with name '{hwSetName}'") #later this will be changed to send update to the client in param
-        return None
-    pass
+    result = client["hardwareDB"]["hardwareSets"].find_one({'hwName': hwSetName})
+    return result
 
 # Function to update the availability of a hardware set
-def updateAvailability(client, hwSetName, newAvailability):
+def updateAvailability(hwSetName, newAvailability):
     # Update the availability of an existing hardware set
     result = hw_collection.update_one(
         {'hwName': hwSetName},

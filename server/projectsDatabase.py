@@ -1,96 +1,75 @@
-# Import necessary libraries and modules
 from pymongo import MongoClient
 import hardwareDatabase
+import logging
 
+# MongoDB setup
 MONGODB_SERVER = "mongodb+srv://masterUser:iXshJM0Tn5C9aAYt@userinfo.qp9mr.mongodb.net/?retryWrites=true&w=majority&appName=UserInfo"
-# Connect to MongoDB
 client = MongoClient(MONGODB_SERVER)
 db = client["info"]
 projects_collection = db["Projects"]
 
-'''
-Structure of Project entry:
-Project = {
-    'projectName': projectName,
-    'projectId': projectId,
-    'description': description,
-    'hwSets': {HW1: 0, HW2: 10, ...},
-    'users': [user1, user2, ...]
-}
-'''
-
-# Function to query a project by its ID
+# Function to query a project by ID
 def queryProject(client, projectId):
-    # Query and return a project from the database
-    project = projects_collection.find_one({'projectId': projectId})
-    if project:
-        return project
-    else:
-        return False
-    pass
+    projects_collection = client["info"]["Projects"]
+    return projects_collection.find_one({"projectId": projectId})
 
 # Function to create a new project
 def createProject(client, projectName, projectId, description):
-    # Create a new project in the database
-    if(not queryProject(client,projectId)):
-        Project = {
-            'projectName': projectName,
-            'projectId': projectId,
-            'description': description,
-            'hwSets': {},
-            'users': []
-        }
-        projects_collection.insert_one(Project)
-        return f"Project '{projectName}' created with ID {projectId}"
-    return False
+    projects_collection = client["info"]["Projects"]
+    if projects_collection.find_one({"projectId": projectId}):
+        return False, "Project ID already exists"
+    
+    project_data = {
+        "projectId": projectId,
+        "projectName": projectName,
+        "description": description,
+        "hwSets": {},
+        "users": []
+    }
+    projects_collection.insert_one(project_data)
+    return True, "Project created successfully"
 
 # Function to add a user to a project
 def addUser(client, projectId, userId):
-    # Add a user to the specified project
-    proj=queryProject(client,projectId)
-    flag = any(user==userId for user in proj['users'])
-    if(not flag):
-        result = projects_collection.update_one(
-            {'projectId': projectId},
-            {'$addToSet': {'users': userId}}
+    projects_collection = client["info"]["Projects"]
+    project = projects_collection.find_one({"projectId": projectId})
+    if project and userId not in project["users"]:
+        projects_collection.update_one(
+            {"projectId": projectId},
+            {"$addToSet": {"users": userId}}
         )
-        return f"User {userId} added to project {projectId}"
-    else:
-        return False
-    pass
+        return True
+    return False
 
 # Function to update hardware usage in a project
-def updateUsage(client, projectId, hwSetName, increment=True):
-    # Update the usage of a hardware set in the specified project
-    change = 1 if increment else -1
-    result = projects_collection.update_one(
-        {'projectId': projectId, f'hwSets.{hwSetName}': {'$exists': True}},
-        {'$inc': {f'hwSets.{hwSetName}': change}}
+def updateUsage(client, projectId, hwSetName, quantity, increment=True):
+    projects_collection = client["info"]["Projects"]
+    change = quantity if increment else -quantity
+    projects_collection.update_one(
+        {"projectId": projectId},
+        {"$inc": {f"hwSets.{hwSetName}": change}}
     )
-    if result.modified_count > 0:
-        return f"Hardware usage for '{hwSetName}' in project {projectId} updated"
-    else:
-        return f"No project found with ID '{projectId}' or hardware set does not exist"
-    pass
 
 # Function to check out hardware for a project
 def checkOutHW(client, projectId, hwSetName, qty, userId):
-    # Check out hardware for the specified project and update availability
-    hw_set = hardwareDatabase.queryHardwareSet(hwSetName)
+    hw_set = hardwareDatabase.queryHardwareSet(client, hwSetName)
     if hw_set and hw_set['availability'] >= qty:
-        hardwareDatabase.updateAvailability(hwSetName, hw_set['availability'] - qty)
-        updateUsage(projectId, hwSetName, increment=True)
-        addUser(projectId, userId)
-        return f"{qty} units of '{hwSetName}' checked out for project {projectId}"
+        hardwareDatabase.updateAvailability(client, hwSetName, hw_set['availability'] - qty)
+        updateUsage(client, projectId, hwSetName, qty, increment=True)
+        addUser(client, projectId, userId)
+        return True, f"{qty} units of '{hwSetName}' checked out successfully."
     else:
-        return f"Insufficient hardware availability for '{hwSetName}'"
-    pass
+        return False, f"Insufficient availability for '{hwSetName}'."
 
 # Function to check in hardware for a project
 def checkInHW(client, projectId, hwSetName, qty, userId):
-    # Check in hardware for the specified project and update availability
-    hardwareDatabase.updateAvailability(hwSetName, qty, increase=True)
-    updateUsage(projectId, hwSetName, increment=False)
-    return f"{qty} units of '{hwSetName}' checked in for project {projectId}"
-    pass
-
+    hw_set = hardwareDatabase.queryHardwareSet(client, hwSetName)
+    projects_collection = client["info"]["Projects"]
+    checked_out_quantity = projects_collection.find_one({"projectId": projectId}).get("hwSets", {}).get(hwSetName, 0)
+    
+    if hw_set and checked_out_quantity >= qty:
+        hardwareDatabase.updateAvailability(client, hwSetName, hw_set['availability'] + qty)
+        updateUsage(client, projectId, hwSetName, qty, increment=False)
+        return True, f"{qty} units of '{hwSetName}' checked in successfully."
+    else:
+        return False, f"Cannot check in more than checked out for '{hwSetName}'."

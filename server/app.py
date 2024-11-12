@@ -11,10 +11,13 @@ import logging
 import sys
 # Define the MongoDB connection string
 MONGODB_SERVER = "mongodb+srv://masterUser:iXshJM0Tn5C9aAYt@userinfo.qp9mr.mongodb.net/?retryWrites=true&w=majority&appName=UserInfo"
+client = MongoClient(MONGODB_SERVER)
 
 # Initialize a new Flask web application
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+CORS(app) 
+logging.basicConfig(level=logging.INFO)
+
 # Route for user login
 @app.route('/login', methods=['POST'])
 def login():
@@ -171,16 +174,22 @@ def get_hw_info():
 @app.route('/check_out', methods=['POST'])
 def check_out():
     data = request.json
+    logging.basicConfig(level=logging.DEBUG)
+    logging.debug(data)
     projectId = data.get('projectId')
     hwName = data.get('hwName')
     quantity = data.get('quantity')
+    userId = data.get('userId')
 
-    client = MongoClient(MONGODB_SERVER)
+    logging.debug(f"Check-out request: projectId={projectId}, hwName={hwName}, quantity={quantity}, userId={userId}")
+    
     try:
-        status = projectsDatabase.checkOutHardware(client, projectId, hwName, quantity)
-        return jsonify({"status": "success" if status else "error"}), 200 if status else 500
-    finally:
-        client.close()
+        message, status_code = projectsDatabase.checkOutHW(client, projectId, hwName, quantity, userId) #client, 
+        logging.debug(f"Check-out result: {message}, Status: {status_code}")
+        return jsonify({"message": message}), status_code
+    except Exception as e:
+        logging.error(f"Error during hardware check-out: {e}")
+        return jsonify({"error": str(e)}), 500
 
 # Route for checking in hardware
 @app.route('/check_in', methods=['POST'])
@@ -189,13 +198,17 @@ def check_in():
     projectId = data.get('projectId')
     hwName = data.get('hwName')
     quantity = data.get('quantity')
+    userId = data.get('userId')
 
-    client = MongoClient(MONGODB_SERVER)
+    logging.debug(f"Check-in request: projectId={projectId}, hwName={hwName}, quantity={quantity}, userId={userId}")
+    
     try:
-        status = projectsDatabase.checkInHardware(client, projectId, hwName, quantity)
-        return jsonify({"status": "success" if status else "error"}), 200 if status else 500
-    finally:
-        client.close()
+        message, status_code = projectsDatabase.checkInHW(projectId, hwName, quantity, userId) #client, 
+        logging.debug(f"Check-in result: {message}, Status: {status_code}")
+        return jsonify({"message": message}), status_code
+    except Exception as e:
+        logging.error(f"Error during hardware check-in: {e}")
+        return jsonify({"error": str(e)}), 500
 
 # Route for creating a new hardware set
 @app.route('/create_hardware_set', methods=['POST'])
@@ -229,4 +242,5 @@ if __name__ == '__main__':
     # print(usersDatabase.joinProject(MongoClient(MONGODB_SERVER),"test","1",1))
     # print(sys.path)
     # projectsDatabase.createProject("client","test Proj", "1", "description")
+    app.logger.setLevel(logging.WARNING)
     app.run()
