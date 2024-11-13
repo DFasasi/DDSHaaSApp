@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useLocation } from 'react-router-dom';
 import './HardwareCheckout.css';
 
-const HardwareCheckout = ({ projectId, userId }) => {
+const HardwareCheckout = () => {
+  const location = useLocation();
+  const { userId } = location.state;
+  const {projectId} = location.state;
   const [hardwareData, setHardwareData] = useState({
     hwSet1: { capacity: 200, available: 200, checkedOut: 0, request: '' },
     hwSet2: { capacity: 200, available: 200, checkedOut: 0, request: '' },
