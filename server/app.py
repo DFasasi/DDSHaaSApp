@@ -256,4 +256,5 @@ if __name__ == '__main__':
     # print(usersDatabase.joinProject(MongoClient(MONGODB_SERVER),"test","1",1))
     # print(sys.path)
     # projectsDatabase.createProject("client","test Proj", "1", "description")
-    app.run(debug=True)
+    print(projectsDatabase.checkOutHW(MongoClient(MONGODB_SERVER), 23434, 'hw Set 1', 1, 'dan'))
+    # app.run(debug=True)
