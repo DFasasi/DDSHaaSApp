@@ -21,29 +21,28 @@ logging.basicConfig(level=logging.INFO)
 # Route for user login
 @app.route('/login', methods=['POST'])
 def login():
-    logging.basicConfig(level=logging.DEBUG)
     if not request.is_json:
-        logging.debug('Request content type is not JSON')
+        app.logger.debug('Request content type is not JSON')
         return jsonify({"status": "error", "message": "Request must be JSON"}), 400
 
     data = request.json
-    logging.debug(f'Received data: {data}')
+    app.logger.debug(f'Received data: {data}')
     
     userId = data.get('userId')
     password = data.get('password')
 
     if not userId or not password:
-        logging.debug('UserId or password is missing')
+        app.logger.debug('UserId or password is missing')
         return jsonify({"status": "error", "message": "UserId and password are required!"}), 400
 
     client = MongoClient(MONGODB_SERVER)
     try:
         # Call the usersDatabase.login function
         login_status = usersDatabase.login(client, userId, password)
-        logging.debug(f'Status: {login_status}')
+        app.logger.debug(f'Status: {login_status}')
         return jsonify({"status": "success" if login_status else "error", "message": "Login successful!" if login_status else "Invalid credentials"}), 200 if login_status else 401
     except Exception as e:
-        logging.debug(f'Error: {e}')
+        app.logger.debug(f'Error: {e}')
         return jsonify({"status": "error", "message": "An error occurred."}), 500
     finally:
         client.close()
@@ -79,14 +78,14 @@ def join_project():
 # Route for adding a new user
 @app.route('/add_user', methods=['POST'])
 def add_user():
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=app.logger.debug)
     data = request.json
-    logging.debug(f'Received data: {data}')
+    app.logger.debug(f'Received data: {data}')
     userId = data.get('userId')
     password = data.get('password')
     client = MongoClient(MONGODB_SERVER)
     if not userId or not password:
-            logging.debug(f'error bruh')
+            app.logger.debug(f'error bruh')
             return jsonify({"status": "error", "message": "All fields are required!"}), 400
     try:
         result = usersDatabase.addUser(client, userId, password)
@@ -132,8 +131,8 @@ def get_user_projects():
 @app.route('/create_project', methods=['POST'])
 def create_project():
     data = request.json
-    logging.basicConfig(level=logging.DEBUG)
-    logging.debug(data)
+    logging.basicConfig(level=app.logger.debug)
+    app.logger.debug(data)
     userId = data.get('userId')
     projectName = data.get('projectName')
     projectId = data.get('projectId')
@@ -189,18 +188,18 @@ def get_hw_info():
 @app.route('/check_out', methods=['POST'])
 def check_out():
     data = request.json
-    logging.basicConfig(level=logging.DEBUG)
-    logging.debug(data)
+    logging.basicConfig(level=app.logger.debug)
+    app.logger.debug(data)
     projectId = data.get('projectId')
     hwName = data.get('hwName')
     quantity = data.get('quantity')
     userId = data.get('userId')
 
-    logging.debug(f"Check-out request: projectId={projectId}, hwName={hwName}, quantity={quantity}, userId={userId}")
+    app.logger.debug(f"Check-out request: projectId={projectId}, hwName={hwName}, quantity={quantity}, userId={userId}")
     
     try:
         message, status_code = projectsDatabase.checkOutHW(client, projectId, hwName, quantity, userId) #client, 
-        logging.debug(f"Check-out result: {message}, Status: {status_code}")
+        app.logger.debug(f"Check-out result: {message}, Status: {status_code}")
         return jsonify({"message": message}), status_code
     except Exception as e:
         logging.error(f"Error during hardware check-out: {e}")
@@ -215,11 +214,11 @@ def check_in():
     quantity = data.get('quantity')
     userId = data.get('userId')
 
-    logging.debug(f"Check-in request: projectId={projectId}, hwName={hwName}, quantity={quantity}, userId={userId}")
+    app.logger.debug(f"Check-in request: projectId={projectId}, hwName={hwName}, quantity={quantity}, userId={userId}")
     
     try:
         message, status_code = projectsDatabase.checkInHW(projectId, hwName, quantity, userId) #client, 
-        logging.debug(f"Check-in result: {message}, Status: {status_code}")
+        app.logger.debug(f"Check-in result: {message}, Status: {status_code}")
         return jsonify({"message": message}), status_code
     except Exception as e:
         logging.error(f"Error during hardware check-in: {e}")
@@ -257,5 +256,4 @@ if __name__ == '__main__':
     # print(usersDatabase.joinProject(MongoClient(MONGODB_SERVER),"test","1",1))
     # print(sys.path)
     # projectsDatabase.createProject("client","test Proj", "1", "description")
-    app.logger.setLevel(logging.WARNING)
-    app.run()
+    app.run(debug=True)

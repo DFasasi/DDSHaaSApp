@@ -33,7 +33,7 @@ const Projects = () => {
         headers: { 'Content-Type': 'application/json' },
       });
       alert(showCreateProject ? 'Project created successfully!' : 'Joined project successfully!');
-      navigate('/hardwarecheckout', { state: { userId } });
+      navigate('/hardwarecheckout', { state: { userId, projectId:formData.projectId } });
     } catch (error) {
       alert('Project action failed!');
     }
