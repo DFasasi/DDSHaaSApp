@@ -100,8 +100,8 @@ def add_user():
     finally:
         client.close()
 
-# Route for getting the list of user projects
-@app.route('/get_user_projects_list', methods=['POST'])
+# Route for getting the list of user projects (idk if this is working)
+@app.route('/get_user_projects_list', methods=['POST']) 
 def get_user_projects_list():
     data = request.json
     userId = data.get('userId')
@@ -110,6 +110,21 @@ def get_user_projects_list():
     try:
         projects = usersDatabase.__queryUser(client, userId)
         return jsonify({"projects": projects}), 200
+    finally:
+        client.close()
+
+@app.route('/user_projects', methods=['POST'])
+def get_user_projects():
+    data = request.json
+    userId = data.get('userId')
+
+    client = MongoClient(MONGODB_SERVER)
+    try:
+        user_projects = usersDatabase.__queryUser(client, userId)  # Make sure this function returns the user's projects
+        return jsonify({"status": "success", "projects": user_projects}), 200
+    except Exception as e:
+        logging.error(f"Error fetching user projects: {e}")
+        return jsonify({"status": "error", "message": "Failed to fetch user projects"}), 500
     finally:
         client.close()
 

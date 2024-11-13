@@ -3,12 +3,14 @@ import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Login from './Login';
 import NewUserForm from './NewUser';
 import Projects from './Projects';
-import HardwareCheckout from './HardwareCheckout';  // Import the new component
+import ProjectsList from './ProjectsList';
+import HardwareCheckout from './HardwareCheckout';
 import './App.css';
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
+  const [userId, setUserId] = useState(null);
 
   useEffect(() => {
     document.body.classList.toggle('dark-mode', darkMode);
@@ -18,8 +20,14 @@ function App() {
     setDarkMode(!darkMode);
   };
 
+  const handleLogin = (id) => {
+    setLoggedIn(true);
+    setUserId(id);
+  };
+
   const handleLogout = () => {
     setLoggedIn(false);
+    setUserId(null);
   };
 
   return (
@@ -27,10 +35,10 @@ function App() {
       <div className="app-container">
         <nav className="nav-links">
           {loggedIn ? (
-            //<span onClick={handleLogout} className="logout-link">Log Out</span>
-            <Link to="/" onClick={handleLogout} className="logout-link">
-              Log Out
-            </Link>
+            <>
+              <Link to="/projects_list">My Projects</Link>  {/* New link for projects list */}
+              <span onClick={handleLogout} className="logout-link">Log Out</span>
+            </>
           ) : (
             <>
               <Link to="/">Login</Link>
@@ -44,10 +52,11 @@ function App() {
         </button>
 
         <Routes>
-          <Route path="/" element={<Login onLogin={() => setLoggedIn(true)} />} />
+          <Route path="/" element={<Login onLogin={handleLogin} />} />
           <Route path="/newuser" element={<NewUserForm />} />
-          <Route path="/projects" element={<Projects />} />
-          <Route path="/hardwarecheckout" element={<HardwareCheckout />} />  {/* New route */}
+          <Route path="/projects" element={<Projects userId={userId} />} />
+          <Route path="/projects_list" element={<ProjectsList userId={userId} />} />  {/* New route for projects list */}
+          <Route path="/hardwarecheckout" element={<HardwareCheckout />} />
         </Routes>
       </div>
     </Router>
