@@ -17,12 +17,13 @@ HardwareSet = {
 '''
 
 # Function to create a new hardware set
-def createHardwareSet(client, hwSetName, initCapacity):
+def createHardwareSet(client, hwSetName, initCapacity, projectId):
     # Create a new hardware set in the database
     HardwareSet = {
         'hwName': hwSetName,
         'capacity': initCapacity,
-        'availability': initCapacity
+        'availability': initCapacity,
+        'projectId' : projectId
     }
     
     # Insert the hardware set into the collection
@@ -31,24 +32,18 @@ def createHardwareSet(client, hwSetName, initCapacity):
     pass
 
 # Function to query a hardware set by its name
-def queryHardwareSet(client, hwSetName):
+def queryHardwareSet(client, hwSetName,projectId):
     # Query and return a hardware set from the database
-    result = client["hardwareDB"]["hardwareSets"].find_one({'hwName': hwSetName})
+    result = client["hardwareDB"]["hardwareSets"].find_one({'hwName': hwSetName, 'projectId':projectId})
     return result
 
 # Function to update the availability of a hardware set
-def updateAvailability(hwSetName, newAvailability):
+def updateAvailability(hwSet, newavailability,projectId):
     # Update the availability of an existing hardware set
-    result = hw_collection.update_one(
-        {'hwName': hwSetName},
-        {'$set': {'availability': newAvailability}}
-    )
-    
-    if result.matched_count > 0:
-        print(f"Availability for '{hwSetName}' updated to {newAvailability}")
-    else:
-        print(f"No hardware set found with name '{hwSetName}'")
-    pass
+    query = {'hwName': hwSet, 'projectId': projectId}
+    update = {'$set': {'availability': newavailability}}
+    result = client["hardwareDB"]["hardwareSets"].update_one(query, update)
+    return result.matched_count, result.modified_count
 
 # Function to request space from a hardware set
 def requestSpace(client, hwSetName, amount):

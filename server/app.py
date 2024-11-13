@@ -143,6 +143,8 @@ def create_project():
         if(projectsDatabase.createProject(client,projectName, projectId, description)):
             projectsDatabase.addUser(client, projectId, userId)
             usersDatabase.joinProject(client, userId,projectId)
+            hardwareDatabase.createHardwareSet(client,"Hardware Set 1",200,projectId)
+            hardwareDatabase.createHardwareSet(client,"Hardware Set 2",200,projectId)
             return jsonify({"status": "success"}), 200
         return jsonify({"status": "error", "message": "Project already exists."}), 500
     finally:
@@ -188,7 +190,6 @@ def get_hw_info():
 @app.route('/check_out', methods=['POST'])
 def check_out():
     data = request.json
-    logging.basicConfig(level=app.logger.debug)
     app.logger.debug(data)
     projectId = data.get('projectId')
     hwName = data.get('hwName')
@@ -198,12 +199,12 @@ def check_out():
     app.logger.debug(f"Check-out request: projectId={projectId}, hwName={hwName}, quantity={quantity}, userId={userId}")
     
     try:
-        message, status_code = projectsDatabase.checkOutHW(client, projectId, hwName, quantity, userId) #client, 
+        status_code,message,avail,qty = projectsDatabase.checkOutHW(client, projectId, hwName, quantity, userId)
         app.logger.debug(f"Check-out result: {message}, Status: {status_code}")
-        return jsonify({"message": message}), status_code
+        return jsonify({"message": message, "avail":avail,"qty":qty}), status_code
     except Exception as e:
-        logging.error(f"Error during hardware check-out: {e}")
-        return jsonify({"error": str(e)}), 500
+        app.logger.error(f"Error during hardware check-out: {e}")
+        return jsonify({"error": str(e), "avail":avail,"qty":qty}), 500
 
 # Route for checking in hardware
 @app.route('/check_in', methods=['POST'])
@@ -217,11 +218,11 @@ def check_in():
     app.logger.debug(f"Check-in request: projectId={projectId}, hwName={hwName}, quantity={quantity}, userId={userId}")
     
     try:
-        message, status_code = projectsDatabase.checkInHW(projectId, hwName, quantity, userId) #client, 
+        status_code,message,avail,qty = projectsDatabase.checkInHW(client, projectId, hwName, quantity, userId)
         app.logger.debug(f"Check-in result: {message}, Status: {status_code}")
-        return jsonify({"message": message}), status_code
+        return jsonify({"message": message, "avail":avail,"qty":qty}), status_code
     except Exception as e:
-        logging.error(f"Error during hardware check-in: {e}")
+        app.logger.error(f"Error during hardware check-in: {e}")
         return jsonify({"error": str(e)}), 500
 
 # Route for creating a new hardware set
@@ -256,5 +257,5 @@ if __name__ == '__main__':
     # print(usersDatabase.joinProject(MongoClient(MONGODB_SERVER),"test","1",1))
     # print(sys.path)
     # projectsDatabase.createProject("client","test Proj", "1", "description")
-    print(projectsDatabase.checkOutHW(MongoClient(MONGODB_SERVER), 23434, 'hw Set 1', 1, 'dan'))
-    # app.run(debug=True)
+    #  print(projectsDatabase.checkOutHW(MongoClient(MONGODB_SERVER), '1', 'Hardware Set 1', 300, 'test'))
+    app.run(debug=True)
