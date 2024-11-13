@@ -19,13 +19,28 @@ def createProject(client, projectName, projectId, description):
     if projects_collection.find_one({"projectId": projectId}):
         return False, "Project ID already exists"
     
+    # project_data = {
+    #     "projectId": projectId,
+    #     "projectName": projectName,
+    #     "description": description,
+    #     "hwSets": {},
+    #     "users": []
+    # }
+
     project_data = {
         "projectId": projectId,
         "projectName": projectName,
         "description": description,
-        "hwSets": {},
-        "users": []
+        "hwSets": {
+            "hwSet1": {
+            "user1": 0,
+            },
+            "hwSet2": {
+            "user1": 0
+                }
+            }
     }
+
     projects_collection.insert_one(project_data)
     return True, "Project created successfully"
 
@@ -65,7 +80,7 @@ def checkOutHW(client, projectId, hwSetName, qty, userId):
 def checkInHW(client, projectId, hwSetName, qty, userId):
     hw_set = hardwareDatabase.queryHardwareSet(client, hwSetName)
     projects_collection = client["info"]["Projects"]
-    checked_out_quantity = projects_collection.find_one({"projectId": projectId}).get("hwSets", {}).get(hwSetName, 0)
+    checked_out_quantity = projects_collection.find_one({"projectId": projectId}).get("hwSets", {}).get(hwSetName, {}).get(userId, 0)
     
     if hw_set and checked_out_quantity >= qty:
         hardwareDatabase.updateAvailability(client, hwSetName, hw_set['availability'] + qty)
