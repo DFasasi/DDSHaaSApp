@@ -46,6 +46,33 @@ def __queryUser(client,  userId):
         return u
     return False
 
+def get_user_projects(client, userId):
+    user_document = __queryUser(client, userId)
+    if not user_document:
+        print("User not found.")
+        return None
+
+    encrypted_projects = user_document.get('projects')
+    
+    if encrypted_projects is not None:
+        try:
+            # Decrypt the projects list
+            decrypted_data = cipher.decrypt(encrypted_projects)
+            # Unpad the decrypted data
+            projects_data = unpad(decrypted_data, AES.block_size)
+            # Decode the bytes to a string
+            projects_string = projects_data.decode()
+            # Convert the string to a Python data structure (e.g., list)
+            import json
+            projects_list = json.loads(projects_string)
+            return projects_list
+        except Exception as e:
+            print(f"Error decrypting projects list: {e}")
+            return None
+    else:
+        print("No projects found for this user.")
+        return []
+
 # Function to log in a user
 def login(client, userId, password):
     # Authenticate a user and return login status
