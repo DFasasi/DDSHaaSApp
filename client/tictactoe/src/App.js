@@ -6,7 +6,6 @@ import Projects from './Projects';
 import ProjectsList from './ProjectsList';
 import HardwareCheckout from './HardwareCheckout';
 import './App.css';
-
 function App() {
   const [darkMode, setDarkMode] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
@@ -34,12 +33,14 @@ function App() {
   return (
     <Router>
       <div className="app-container">
+        {/* Navigation Bar */}
         <nav className="nav-links">
           {loggedIn ? (
             <>
-              <Link to="/projects_list">My Projects</Link>  {/* Link for projects list */} 
+              {/* Link with userId parameter */}
+              <Link to={`/projects_list/${userId}`}>My Projects</Link>
               <span onClick={handleLogout} className="logout-link">Log Out</span>
-            </>/*FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!*/
+            </>
           ) : (
             <>
               <Link to="/">Login</Link>
@@ -47,16 +48,19 @@ function App() {
             </>
           )}
         </nav>
-        
+
+        {/* Dark Mode Toggle */}
         <button onClick={toggleDarkMode} className="dark-mode-toggle">
           {darkMode ? '🌙' : '☀️'}
         </button>
 
+        {/* Application Routes */}
         <Routes>
           <Route path="/" element={<Login onLogin={handleLogin} />} />
           <Route path="/newuser" element={<NewUserForm />} />
           <Route path="/projects" element={<Projects userId={userId} />} />
-          <Route path="/projects_list" element={<ProjectsList userId={userId} />} />  {/* Route for projects list */}
+          {/* Route for ProjectsList with userId parameter */}
+          <Route path="/projects_list/:userId" element={<ProjectsList />} />
           <Route path="/hardwarecheckout" element={<HardwareCheckout />} />
         </Routes>
       </div>

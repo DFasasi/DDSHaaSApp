@@ -6,7 +6,6 @@ import './HardwareCheckout.css';
 const HardwareCheckout = () => {
   const location = useLocation();
   const { userId, projectId } = location.state;
-
   const initialHardwareData = {
     'Hardware Set 1': { capacity: 200, available: 200, checkedOut: 0, request: '' },
     'Hardware Set 2': { capacity: 200, available: 200, checkedOut: 0, request: '' },

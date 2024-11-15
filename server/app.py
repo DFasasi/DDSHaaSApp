@@ -99,10 +99,11 @@ def get_user_projects_list():
 def get_user_projects():##################################################################
     data = request.json
     userId = data.get('userId')
-
+    app.logger.debug(data)
     client = MongoClient(MONGODB_SERVER)
     try:
         user_projects = usersDatabase.get_user_projects(client, userId)  # Most recetn error for projects list stems from an error with this call
+        app.logger.debug(user_projects)
         return jsonify({"status": "success", "projects": user_projects}), 200
     except Exception as e:
         logging.error(f"Error fetching user projects: {e}")

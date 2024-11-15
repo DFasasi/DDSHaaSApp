@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useUser } from './UserContext';
 
-const ProjectsList = ({ userId }) => {
-  const [projects, setProjects] = useState([]);
+const ProjectsList = () => {
+  const [projects, setProjects] = useState([]); // Ensure it's initialized as an empty array
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { userId } = useUser(); // Retrieve userId from context
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -15,9 +17,9 @@ const ProjectsList = ({ userId }) => {
         }, {
           headers: { 'Content-Type': 'application/json' }
         });
-        
+
         if (response.data.status === "success") {
-          setProjects(response.data.projects);
+          setProjects(response.data.projects || []); // Ensure `projects` is always an array
         } else {
           alert(response.data.message);
         }
@@ -43,12 +45,11 @@ const ProjectsList = ({ userId }) => {
         <p>Loading projects...</p>
       ) : (
         <ul>
-          {projects.length > 0 ? (
-            projects.map((project) => (
-              <li key={project.projectId} className="project-item">
-                <span>{project.projectName}</span>
+          {projects && projects.length > 0 ? ( // Add null-check and handle empty array
+            projects.map((project, index) => (
+              <li key={index} className="project-item">
                 <button onClick={() => handleJoinProject(project.projectId)}>
-                  Log into Project
+                  {'ID:'+project}
                 </button>
               </li>
             ))
