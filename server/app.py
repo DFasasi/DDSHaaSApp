@@ -99,11 +99,11 @@ def get_user_projects_list():
 def get_user_projects():##################################################################
     data = request.json
     userId = data.get('userId')
-    app.logger.debug(data)
+    projectId = data.get('projectId')
+
     client = MongoClient(MONGODB_SERVER)
     try:
         user_projects = usersDatabase.get_user_projects(client, userId)  # Most recetn error for projects list stems from an error with this call
-        app.logger.debug(user_projects)
         return jsonify({"status": "success", "projects": user_projects}), 200
     except Exception as e:
         logging.error(f"Error fetching user projects: {e}")
@@ -207,7 +207,6 @@ def get_hw_info():
     finally:
         client.close()
 
-# Route for checking out hardware
 @app.route('/check_out', methods=['POST'])
 def check_out():
     data = request.json
@@ -220,12 +219,20 @@ def check_out():
     app.logger.debug(f"Check-out request: projectId={projectId}, hwName={hwName}, quantity={quantity}, userId={userId}")
     
     try:
-        status_code,message,avail,qty = projectsDatabase.checkOutHW(client, projectId, hwName, quantity, userId)
+        status_code, message, avail, qty = projectsDatabase.checkOutHW(client, projectId, hwName, quantity, userId)
         app.logger.debug(f"Check-out result: {message}, Status: {status_code}")
-        return jsonify({"message": message, "avail":avail,"qty":qty}), status_code
+        return jsonify({
+            "status": "success" if status_code == 200 else "error",
+            "message": message,
+            "avail": avail,
+            "qty": qty
+        }), status_code
     except Exception as e:
         app.logger.error(f"Error during hardware check-out: {e}")
-        return jsonify({"error": str(e), "avail":avail,"qty":qty}), 500
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        }), 500
 
 # Route for checking in hardware
 @app.route('/check_in', methods=['POST'])
@@ -239,13 +246,49 @@ def check_in():
     app.logger.debug(f"Check-in request: projectId={projectId}, hwName={hwName}, quantity={quantity}, userId={userId}")
     
     try:
-        status_code,message,avail,qty = projectsDatabase.checkInHW(client, projectId, hwName, quantity, userId)
+        status_code, message, avail, qty = projectsDatabase.checkInHW(client, projectId, hwName, quantity, userId)
         app.logger.debug(f"Check-in result: {message}, Status: {status_code}")
-        return jsonify({"message": message, "avail":avail,"qty":qty}), status_code
+        return jsonify({
+            "status": "success" if status_code == 200 else "error",
+            "message": message,
+            "avail": avail,
+            "qty": qty
+        }), status_code
     except Exception as e:
         app.logger.error(f"Error during hardware check-in: {e}")
-        return jsonify({"error": str(e)}), 500
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        }), 500
 
+# Route for getting hardware data
+@app.route('/get_hardware_data', methods=['POST'])
+def get_hardware_data():
+    data = request.json
+    projectId = data.get('projectId')
+    userId = data.get('userId')  # If needed for authorization
+
+    try:
+        # Fetch hardware data for the project
+        hardware_sets = hardwareDatabase.getHardwareSets(client, projectId)
+        if hardware_sets:
+            hardware_data = {}
+            for hw_set in hardware_sets:
+                hw_name = hw_set['hwName']
+                available_quantity = hw_set['availability']
+                hardware_data[hw_name] = {
+                    'capacity': hw_set['capacity'],
+                    'available': available_quantity,
+                    'checkedOut': hw_set['capacity'] - available_quantity,
+                    'request': ''
+                }
+            return jsonify({"status": "success", "hardwareData": hardware_data}), 200
+        else:
+            return jsonify({"status": "error", "message": "No hardware data found."}), 404
+    except Exception as e:
+        app.logger.error(f"Error fetching hardware data: {e}")
+        return jsonify({"status": "error", "message": "An error occurred while fetching hardware data."}), 500
+    
 # Route for creating a new hardware set
 @app.route('/create_hardware_set', methods=['POST'])
 def create_hardware_set():
@@ -280,4 +323,5 @@ if __name__ == '__main__':
     # projectsDatabase.createProject("client","test Proj", "1", "description")
     #  print(projectsDatabase.checkOutHW(MongoClient(MONGODB_SERVER), '1', 'Hardware Set 1', 300, 'test'))
     #print(usersDatabase.get_user_projects("DavidTest"))
+    #print(hardwareDatabase.getHardwareSets(MongoClient(MONGODB_SERVER), 'up'))
     app.run(debug=True)

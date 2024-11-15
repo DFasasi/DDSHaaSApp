@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
 import './HardwareCheckout.css';
@@ -6,12 +6,32 @@ import './HardwareCheckout.css';
 const HardwareCheckout = () => {
   const location = useLocation();
   const { userId, projectId } = location.state;
-  const initialHardwareData = {
-    'Hardware Set 1': { capacity: 200, available: 200, checkedOut: 0, request: '' },
-    'Hardware Set 2': { capacity: 200, available: 200, checkedOut: 0, request: '' },
+
+  const [hardwareData, setHardwareData] = useState({});
+
+  // Extracted data fetching function
+  const fetchHardwareData = async () => {
+    try {
+      const response = await axios.post('http://localhost:5000/get_hardware_data', {
+        projectId,
+        userId,
+      });
+
+      if (response.data) {// && response.data.status === 'success'
+        setHardwareData(response.data.hardwareData);
+      } else {
+        alert(response.data.message || 'Failed to load hardware data.');
+      }
+    } catch (error) {
+      console.error('Error fetching hardware data:', error);
+      alert('Error fetching hardware data.');
+    }
   };
 
-  const [hardwareData, setHardwareData] = useState(initialHardwareData);
+  // Fetch hardware data when the component mounts
+  useEffect(() => {
+    fetchHardwareData();
+  }, [projectId, userId]);
 
   const handleChange = (e, hwSet) => {
     const { name, value } = e.target;
@@ -36,24 +56,18 @@ const HardwareCheckout = () => {
         userId
       });
 
-      if (response.data.status === "success") {
+      if (response.data) {
         alert(response.data.message);
-        const { available, checkedOut } = response.data;
-        setHardwareData(prevData => ({
-          ...prevData,
-          [hwSet]: {
-            ...prevData[hwSet],
-            available,
-            checkedOut,
-            request: ''
-          }
-        }));
+        // Reload hardware data after successful checkout
+        await fetchHardwareData();
       } else {
         alert(response.data.message);
+        await fetchHardwareData();
       }
     } catch (error) {
       console.error("Error during checkout:", error);
       alert("Checkout failed.");
+      await fetchHardwareData();
     }
   };
 
@@ -72,18 +86,10 @@ const HardwareCheckout = () => {
         userId
       });
 
-      if (response.data.success) {
+      if (response.data) {
         alert(response.data.message);
-        const { available, checkedOut } = response.data;
-        setHardwareData(prevData => ({
-          ...prevData,
-          [hwSet]: {
-            ...prevData[hwSet],
-            available,
-            checkedOut,
-            request: ''
-          }
-        }));
+        // Reload hardware data after successful check-in
+        await fetchHardwareData();
       } else {
         alert(response.data.message);
       }
@@ -108,28 +114,34 @@ const HardwareCheckout = () => {
           </tr>
         </thead>
         <tbody>
-          {Object.keys(hardwareData).map(hwSet => (
-            <tr key={hwSet}>
-              <td>{hwSet}</td>
-              <td>{hardwareData[hwSet].capacity}</td>
-              <td>{hardwareData[hwSet].available}</td>
-              <td>{hardwareData[hwSet].checkedOut}</td>
-              <td>
-                <input
-                  type="number"
-                  name="request"
-                  value={hardwareData[hwSet].request}
-                  onChange={(e) => handleChange(e, hwSet)}
-                  className="input-request"
-                  min="0"
-                />
-              </td>
-              <td className="actions-cell">
-                <button onClick={() => handleCheckOut(hwSet)} className="button-checkout">Check Out</button>
-                <button onClick={() => handleCheckIn(hwSet)} className="button-checkin">Check In</button>
-              </td>
+          {Object.keys(hardwareData).length === 0 ? (
+            <tr>
+              <td colSpan="6">Loading hardware data...</td>
             </tr>
-          ))}
+          ) : (
+            Object.keys(hardwareData).map(hwSet => (
+              <tr key={hwSet}>
+                <td>{hwSet}</td>
+                <td>{hardwareData[hwSet].capacity}</td>
+                <td>{hardwareData[hwSet].available}</td>
+                <td>{hardwareData[hwSet].checkedOut}</td>
+                <td>
+                  <input
+                    type="number"
+                    name="request"
+                    value={hardwareData[hwSet].request}
+                    onChange={(e) => handleChange(e, hwSet)}
+                    className="input-request"
+                    min="0"
+                  />
+                </td>
+                <td className="actions-cell">
+                  <button onClick={() => handleCheckOut(hwSet)} className="button-checkout">Check Out</button>
+                  <button onClick={() => handleCheckIn(hwSet)} className="button-checkin">Check In</button>
+                </td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
     </div>

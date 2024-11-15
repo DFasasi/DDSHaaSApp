@@ -69,3 +69,8 @@ def getAllHwNames(client):
     return [hw['hwName'] for hw in hw_names]
     pass
 
+def getHardwareSets(client, projectId):
+
+    hardware_sets = hw_collection.find({'projectId': projectId})
+    return list(hardware_sets)
+
