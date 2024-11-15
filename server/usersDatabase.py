@@ -38,7 +38,7 @@ def addUser(client, userId, password):
     return True
 
 # Helper function to query a user by userId
-def __queryUser(client,  userId):
+def __queryUser(userId):
     # Query and return a user from the database
     User = {'userId': cipher.encrypt(pad(userId.encode(), AES.block_size))}
     u=doc.find_one(User)
@@ -46,32 +46,16 @@ def __queryUser(client,  userId):
         return u
     return False
 
-def get_user_projects(client, userId):
-    user_document = __queryUser(client, userId)
+def get_user_projects(userId):
+    user_document = __queryUser(userId)
     if not user_document:
         print("User not found.")
         return None
 
-    encrypted_projects = user_document.get('projects')
-    
-    if encrypted_projects is not None:
-        try:
-            # Decrypt the projects list
-            decrypted_data = cipher.decrypt(encrypted_projects)
-            # Unpad the decrypted data
-            projects_data = unpad(decrypted_data, AES.block_size)
-            # Decode the bytes to a string
-            projects_string = projects_data.decode()
-            # Convert the string to a Python data structure (e.g., list)
-            import json
-            projects_list = json.loads(projects_string)
-            return projects_list
-        except Exception as e:
-            print(f"Error decrypting projects list: {e}")
-            return None
-    else:
-        print("No projects found for this user.")
-        return []
+    # Directly retrieve the projects list without decryption
+    projects_list = user_document.get('projects', [])
+    print(projects_list)
+    return projects_list
 
 # Function to log in a user
 def login(client, userId, password):

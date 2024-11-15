@@ -11,7 +11,7 @@ const ProjectsList = ({ userId }) => {
     const fetchProjects = async () => {
       try {
         const response = await axios.post('http://localhost:5000/user_projects', {
-          userId,
+          userId
         }, {
           headers: { 'Content-Type': 'application/json' }
         });
