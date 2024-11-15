@@ -38,7 +38,7 @@ def addUser(client, userId, password):
     return True
 
 # Helper function to query a user by userId
-def __queryUser(userId):
+def __queryUser(client, userId):
     # Query and return a user from the database
     User = {'userId': cipher.encrypt(pad(userId.encode(), AES.block_size))}
     u=doc.find_one(User)
@@ -46,8 +46,8 @@ def __queryUser(userId):
         return u
     return False
 
-def get_user_projects(userId):
-    user_document = __queryUser(userId)
+def get_user_projects(client, userId):
+    user_document = __queryUser(client, userId)
     if not user_document:
         print("User not found.")
         return None
