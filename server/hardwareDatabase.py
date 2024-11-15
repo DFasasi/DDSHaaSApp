@@ -32,7 +32,7 @@ def createHardwareSet(client, hwSetName, initCapacity, projectId):
     pass
 
 # Function to query a hardware set by its name
-def queryHardwareSet(client, hwSetName,projectId):
+def queryHardwareSet(client, hwSetName, projectId):
     # Query and return a hardware set from the database
     result = client["hardwareDB"]["hardwareSets"].find_one({'hwName': hwSetName, 'projectId':projectId})
     return result
