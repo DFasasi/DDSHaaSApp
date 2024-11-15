@@ -58,23 +58,6 @@ def mainPage():
     finally:
         client.close()
 
-# Route for joining a project
-@app.route('/join_project', methods=['POST'])
-def join_project():
-    data = request.json
-    userId = data.get('userId')
-    projectId = data.get('projectId')
-
-    client = MongoClient(MONGODB_SERVER)
-    try:
-        join_status = projectsDatabase.addUser(client, projectId, userId)
-        if(join_status):
-            return jsonify({"status": "success"}), 200
-        return jsonify({"status": "error", "message": "User already exists in project or Project Doesn't Exist."}), 500
-        
-    finally:
-        client.close()
-
 # Route for adding a new user
 @app.route('/add_user', methods=['POST'])
 def add_user():
@@ -149,6 +132,43 @@ def create_project():
         return jsonify({"status": "error", "message": "Project already exists."}), 500
     finally:
         client.close()
+
+# Route for joining a project
+@app.route('/join_project', methods=['POST'])
+def join_project():
+    data = request.json
+    userId = data.get('userId')
+    projectId = data.get('projectId')
+    app.logger.debug(f"Received data: {data}")
+    app.logger.debug(f"userId: {userId}, projectId: {projectId}, type: {type(projectId)}")
+
+    if not userId or not projectId:
+        return jsonify({"status": "error", "message": "Missing userId or projectId."}), 400
+
+    client = MongoClient(MONGODB_SERVER)
+    try:
+        # Ensure projectId is a string
+        if not isinstance(projectId, str):
+            projectId = str(projectId)
+        project = projectsDatabase.queryProject(client, projectId)
+        app.logger.debug(f"Project found: {project}")
+        if not project:
+            return jsonify({"status": "error", "message": "Project does not exist."}), 404
+
+        join_status = projectsDatabase.addUser(client, projectId, userId) #error happens here
+        app.logger.debug(f"Join status: {join_status}")
+        if join_status:
+            usersDatabase.joinProject(client, userId, projectId)
+            return jsonify({"status": "success", "message": "Joined project successfully!"}), 200
+        else:
+            return jsonify({"status": "error", "message": "User already exists in project."}), 400
+
+    except Exception as e:
+        app.logger.error(f"Error joining project: {e}")
+        return jsonify({"status": "error", "message": "An error occurred while joining the project."}), 500
+    finally:
+        client.close()
+
 
 # Route for getting project information
 @app.route('/get_project_info', methods=['POST'])

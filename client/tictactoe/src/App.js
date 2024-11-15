@@ -28,6 +28,7 @@ function App() {
   const handleLogout = () => {
     setLoggedIn(false);
     setUserId(null);
+    window.location.href = "/"; // Redirect to login page after logout
   };
 
   return (
@@ -36,9 +37,9 @@ function App() {
         <nav className="nav-links">
           {loggedIn ? (
             <>
-              <Link to="/projects_list">My Projects</Link>  {/* New link for projects list */}
+              <Link to="/projects_list">My Projects</Link>  {/* Link for projects list */} 
               <span onClick={handleLogout} className="logout-link">Log Out</span>
-            </>
+            </>/*FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!FLAG!*/
           ) : (
             <>
               <Link to="/">Login</Link>
@@ -55,7 +56,7 @@ function App() {
           <Route path="/" element={<Login onLogin={handleLogin} />} />
           <Route path="/newuser" element={<NewUserForm />} />
           <Route path="/projects" element={<Projects userId={userId} />} />
-          <Route path="/projects_list" element={<ProjectsList userId={userId} />} />  {/* New route for projects list */}
+          <Route path="/projects_list" element={<ProjectsList userId={userId} />} />  {/* Route for projects list */}
           <Route path="/hardwarecheckout" element={<HardwareCheckout />} />
         </Routes>
       </div>

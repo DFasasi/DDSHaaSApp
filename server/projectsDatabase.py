@@ -48,6 +48,7 @@ def createProject(client, projectName, projectId, description):
 def addUser(client, projectId, userId):
     add_user_to_hw_set(projectId,'Hardware Set 1',userId,0)
     add_user_to_hw_set(projectId,'Hardware Set 2',userId,0)
+    return True
     
 def add_user_to_hw_set(projectId, hwSetName, userId, initial_value=0):
     projects_collection = client["info"]["Projects"]
