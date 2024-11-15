@@ -16,16 +16,11 @@ def queryProject(client, projectId):
 # Function to create a new project
 def createProject(client, projectName, projectId, description):
     projects_collection = client["info"]["Projects"]
-    if projects_collection.find_one({"projectId": projectId}):
+
+    existingProj = queryProject(client, projectId)
+
+    if existingProj is not None:
         return False, "Project ID already exists"
-    
-    # project_data = {
-    #     "projectId": projectId,
-    #     "projectName": projectName,
-    #     "description": description,
-    #     "hwSets": {},
-    #     "users": []
-    # }
 
     project_data = {
         "projectId": projectId,

@@ -124,13 +124,15 @@ def create_project():
 
     client = MongoClient(MONGODB_SERVER)
     try:
-        if(projectsDatabase.createProject(client,projectName, projectId, description)):
+        success, message = projectsDatabase.createProject(client, projectName, projectId, description)
+        if(success is not False):
             projectsDatabase.addUser(client, projectId, userId)
             usersDatabase.joinProject(client, userId,projectId)
             hardwareDatabase.createHardwareSet(client,"Hardware Set 1",200,projectId)
             hardwareDatabase.createHardwareSet(client,"Hardware Set 2",200,projectId)
             return jsonify({"status": "success"}), 200
-        return jsonify({"status": "error", "message": "Project already exists."}), 500
+        else:
+            return jsonify({"status": "error", "message": "Project already exists."}), 500
     finally:
         client.close()
 
@@ -322,6 +324,8 @@ if __name__ == '__main__':
     # print(sys.path)
     # projectsDatabase.createProject("client","test Proj", "1", "description")
     #  print(projectsDatabase.checkOutHW(MongoClient(MONGODB_SERVER), '1', 'Hardware Set 1', 300, 'test'))
-    #print(usersDatabase.get_user_projects("DavidTest"))
+    #print(usersDatabase.get_user_projects("DavidTest"))5rgffrf23
     #print(hardwareDatabase.getHardwareSets(MongoClient(MONGODB_SERVER), 'up'))
+    #print(projectsDatabase.queryProject(MongoClient(MONGODB_SERVER), '14'))
+    #print(projectsDatabase.createProject(MongoClient(MONGODB_SERVER), "test Proj", "1", "description"))
     app.run(debug=True)

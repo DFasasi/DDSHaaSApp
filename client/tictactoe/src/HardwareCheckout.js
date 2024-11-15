@@ -121,10 +121,10 @@ const HardwareCheckout = () => {
           ) : (
             Object.keys(hardwareData).map(hwSet => (
               <tr key={hwSet}>
-                <td>{hwSet}</td>
-                <td>{hardwareData[hwSet].capacity}</td>
-                <td>{hardwareData[hwSet].available}</td>
-                <td>{hardwareData[hwSet].checkedOut}</td>
+                <td className="number-text">{hwSet}</td>
+                <td className="number-text">{hardwareData[hwSet].capacity}</td>
+                <td className="number-text">{hardwareData[hwSet].available}</td>
+                <td className="number-text">{hardwareData[hwSet].checkedOut}</td>
                 <td>
                   <input
                     type="number"
