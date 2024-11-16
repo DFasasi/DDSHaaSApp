@@ -17,6 +17,7 @@ const Login = ({ onLogin }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      console.log("fucked")
       const response = await axios.post('http://localhost:5000/login', {
         userId: formData.username,
         password: formData.password
