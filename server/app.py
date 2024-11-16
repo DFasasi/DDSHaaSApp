@@ -1,6 +1,6 @@
 # Import necessary libraries and modules
 from bson.objectid import ObjectId
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from pymongo import MongoClient
 from flask_cors import CORS
 # Import custom modules for database interactions
@@ -9,14 +9,23 @@ import projectsDatabase
 import hardwareDatabase
 import logging
 import sys
+import os
 # Define the MongoDB connection string
 MONGODB_SERVER = "mongodb+srv://masterUser:iXshJM0Tn5C9aAYt@userinfo.qp9mr.mongodb.net/?retryWrites=true&w=majority&appName=UserInfo"
 client = MongoClient(MONGODB_SERVER)
 
 # Initialize a new Flask web application
-app = Flask(__name__)
+app = Flask(__name__, static_folder='build', static_url_path='')
 CORS(app) 
 logging.basicConfig(level=logging.INFO)
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve(path):
+    if path != "" and os.path.exists(f'build/{path}'):
+        return send_from_directory('build', path)
+    else:
+        return send_from_directory('build', 'index.html')
 
 # Route for user login
 @app.route('/login', methods=['POST'])
