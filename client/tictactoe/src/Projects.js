@@ -24,7 +24,7 @@ const Projects = () => {
     e.preventDefault();
     try {
       const endpoint = showCreateProject ? 'create_project' : 'join_project';
-      await axios.post(`http://localhost:5000/${endpoint}`, {
+      await axios.post(`https://nbhaas-bf3456b48e75.herokuapp.com/${endpoint}`, {
         userId,
         projectId: formData.projectId,
         projectName: formData.name,

@@ -29,7 +29,7 @@ const NewUserForm = () => {
 
     const addUser = async () => {
       try {
-        const response = await axios.post('http://localhost:5000/add_user', {
+        const response = await axios.post('https://nbhaas-bf3456b48e75.herokuapp.com/add_user', {
           userId: formData.username,
           password: formData.password
         }, {

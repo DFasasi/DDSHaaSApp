@@ -15,7 +15,7 @@ const ProjectsList = () => {
     const fetchProjects = async () => {
       try {
         const response = await axios.post(
-          'http://localhost:5000/user_projects',
+          'https://nbhaas-bf3456b48e75.herokuapp.com/user_projects',
           { userId },
           { headers: { 'Content-Type': 'application/json' } }
         );

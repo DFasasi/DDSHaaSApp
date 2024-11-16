@@ -12,7 +12,7 @@ const HardwareCheckout = () => {
   // Extracted data fetching function
   const fetchHardwareData = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/get_hardware_data', {
+      const response = await axios.post('https://nbhaas-bf3456b48e75.herokuapp.com/get_hardware_data', {
         projectId,
         userId,
       });
@@ -49,7 +49,7 @@ const HardwareCheckout = () => {
     }
 
     try {
-      const response = await axios.post(`http://localhost:5000/check_out`, {
+      const response = await axios.post(`https://nbhaas-bf3456b48e75.herokuapp.com/check_out`, {
         projectId,
         hwName: hwSet,
         quantity: requestedQuantity,
@@ -79,7 +79,7 @@ const HardwareCheckout = () => {
     }
 
     try {
-      const response = await axios.post(`http://localhost:5000/check_in`, {
+      const response = await axios.post(`https://nbhaas-bf3456b48e75.herokuapp.com/check_in`, {
         projectId,
         hwName: hwSet,
         quantity: requestedQuantity,
